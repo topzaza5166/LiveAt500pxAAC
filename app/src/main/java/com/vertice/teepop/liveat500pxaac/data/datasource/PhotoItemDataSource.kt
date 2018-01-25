@@ -1,4 +1,4 @@
-package com.vertice.teepop.liveat500pxaac.data
+package com.vertice.teepop.liveat500pxaac.data.datasource
 
 import android.arch.paging.ItemKeyedDataSource
 import com.vertice.teepop.liveat500pxaac.data.model.PhotoItem
@@ -12,12 +12,12 @@ import javax.inject.Inject
 class PhotoItemDataSource(val apiService: ApiService) : ItemKeyedDataSource<Int, PhotoItem>() {
 
     override fun loadBefore(params: LoadParams<Int>, callback: LoadCallback<PhotoItem>) {
-        apiService.loadPhotoListBeforeId(params.key)
+        apiService.loadPhotoListAfterId(params.key)
                 .subscribeOn(Schedulers.io())
-                .subscribe({ photoItemCollection, _ ->
+                .subscribe { photoItemCollection, _ ->
                     if (photoItemCollection.success)
                         callback.onResult(photoItemCollection.data)
-                })
+                }
     }
 
     override fun loadInitial(params: LoadInitialParams<Int>, callback: LoadInitialCallback<PhotoItem>) {
@@ -33,12 +33,12 @@ class PhotoItemDataSource(val apiService: ApiService) : ItemKeyedDataSource<Int,
     }
 
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<PhotoItem>) {
-        apiService.loadPhotoListAfterId(params.key)
+        apiService.loadPhotoListBeforeId(params.key)
                 .subscribeOn(Schedulers.io())
-                .subscribe { photoItemCollection, _ ->
+                .subscribe({ photoItemCollection, _ ->
                     if (photoItemCollection.success)
                         callback.onResult(photoItemCollection.data)
-                }
+                })
     }
 
     override fun getKey(item: PhotoItem): Int {

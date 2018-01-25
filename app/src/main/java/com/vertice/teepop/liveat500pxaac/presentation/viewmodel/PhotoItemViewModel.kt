@@ -1,12 +1,13 @@
 package com.vertice.teepop.liveat500pxaac.presentation.viewmodel
 
 import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModel
 import android.arch.paging.LivePagedListBuilder
 import android.arch.paging.PagedList
-import com.vertice.teepop.liveat500pxaac.data.PhotoItemDataSource
+import com.vertice.teepop.liveat500pxaac.data.PhotoItemRepository
 import com.vertice.teepop.liveat500pxaac.data.model.PhotoItem
-import com.vertice.teepop.liveat500pxaac.data.remote.ApiService
 import javax.inject.Inject
 
 /**
@@ -15,18 +16,32 @@ import javax.inject.Inject
 class PhotoItemViewModel : ViewModel() {
 
     @Inject
-    lateinit var apiService: ApiService
-
-    private val photoItemDataSource by lazy {
-        PhotoItemDataSource(apiService)
-    }
+    lateinit var repository: PhotoItemRepository
 
     private var photoItem: LiveData<PagedList<PhotoItem>>? = null
 
-    fun getPhotoItem(): LiveData<PagedList<PhotoItem>> {
-        photoItem = photoItem ?: LivePagedListBuilder<Int, PhotoItem>({ photoItemDataSource }, 20).build()
+    private var livePhotoItem: MutableLiveData<List<PhotoItem>>? = null
+
+    fun getPageListPhotoItem(): LiveData<PagedList<PhotoItem>> {
+        photoItem = photoItem ?: LivePagedListBuilder<Int, PhotoItem>({ repository.getPhotoItemDataSource() }, 20).build()
         return photoItem!!
     }
 
+    fun getLivePhotoItem(): LiveData<List<PhotoItem>> {
+        livePhotoItem = livePhotoItem ?: repository.getPhotoItemLiveData()
+        return livePhotoItem!!
+    }
+
+    fun loadMore() {
+        livePhotoItem?.value?.last()?.let {
+            repository.updatePhotoItemLiveData(it.id, livePhotoItem!!)
+        }
+    }
+
+    fun reloadLivePhotoItem() {
+        livePhotoItem?.let {
+            repository.getPhotoItemLiveData(livePhotoItem!!)
+        }
+    }
 
 }

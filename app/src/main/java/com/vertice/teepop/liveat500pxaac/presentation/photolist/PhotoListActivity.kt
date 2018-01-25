@@ -12,9 +12,14 @@ class PhotoListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_photo_list)
 
+//        if (savedInstanceState == null)
+//            supportFragmentManager.beginTransaction()
+//                    .add(R.id.contentContainer, PhotoListFragment.newInstance())
+//                    .commit()
+
         if (savedInstanceState == null)
             supportFragmentManager.beginTransaction()
-                    .add(R.id.contentContainer, PhotoListFragment.newInstance())
+                    .add(R.id.contentContainer, LivePhotoListFragment.newInstance())
                     .commit()
     }
 }

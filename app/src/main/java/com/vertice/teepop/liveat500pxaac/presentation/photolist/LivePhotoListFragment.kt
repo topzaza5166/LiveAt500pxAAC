@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,13 +17,15 @@ import kotlinx.android.synthetic.main.fragment_photo_list.*
 /**
  * Created by nuuneoi on 11/16/2014.
  */
-class PhotoListFragment : Fragment() {
+class LivePhotoListFragment : Fragment() {
 
     private val TAG: String = this::class.java.simpleName
 
-    val photoListAdapter: PhotoPageListAdapter by lazy {
-        PhotoPageListAdapter(activity!!)
-    }
+    private val photoListAdapter: PhotoLiveAdapter = PhotoLiveAdapter()
+
+    val linearLayoutManager = LinearLayoutManager(context)
+
+    var loadingMore: Boolean = false
 
     private val viewModel by lazy {
         ViewModelProviders.of(this).get(PhotoItemViewModel::class.java).also {
@@ -55,18 +58,35 @@ class PhotoListFragment : Fragment() {
 
     private fun initInstances(savedInstanceState: Bundle?) {
         // Init 'View' instance(s) with rootView.findViewById here
+        getPhotoList()
 
-        recyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = photoListAdapter
+        swipeRefreshLayout.setOnRefreshListener {
+            viewModel.reloadLivePhotoItem()
         }
 
-        viewModel.getPageListPhotoItem().observe(this, Observer {
-            it.let {
-                photoListAdapter.setList(it)
+        recyclerView.apply {
+            layoutManager = linearLayoutManager
+            adapter = photoListAdapter
+            addOnScrollListener(scrollListener)
+        }
 
+    }
+
+    private fun getPhotoList() {
+        viewModel.getLivePhotoItem().observe(this, Observer {
+            it?.let {
+                photoListAdapter.photoList = it
+                onPhotoItemChangedListener()
             }
         })
+    }
+
+    private fun onPhotoItemChangedListener() {
+        if (swipeRefreshLayout.isRefreshing)
+            swipeRefreshLayout.isRefreshing = false
+
+        if (loadingMore)
+            loadingMore = false
     }
 
     override fun onStart() {
@@ -92,10 +112,28 @@ class PhotoListFragment : Fragment() {
         // Restore Instance State here
     }
 
+    /**
+     *  visibleItemCount = linearLayoutManager.childCount
+     *  totalItemCount = linearLayoutManager.itemCount
+     *  firstVisibleItems = linearLayoutManager.findFirstVisibleItemPosition()
+     */
+    private val scrollListener: RecyclerView.OnScrollListener = object : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+            if (!loadingMore && dy > 0) {
+                linearLayoutManager.run {
+                    if (findFirstVisibleItemPosition() + childCount >= itemCount) {
+                        viewModel.loadMore()
+                        loadingMore = true
+                    }
+                }
+            }
+        }
+    }
+
     companion object {
 
-        fun newInstance(): PhotoListFragment {
-            return PhotoListFragment().apply {
+        fun newInstance(): LivePhotoListFragment {
+            return LivePhotoListFragment().apply {
                 arguments = Bundle().apply {
 
                 }

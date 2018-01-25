@@ -14,9 +14,9 @@ interface ApiService {
     fun loadPhotoList(): Single<PhotoItemCollection>
 
     @POST("list/before/{id}")
-    fun loadPhotoListAfterId(@Path("id") id: Int): Single<PhotoItemCollection>
+    fun loadPhotoListBeforeId(@Path("id") id: Int): Single<PhotoItemCollection>
 
     @POST("list/after/{id}")
-    fun loadPhotoListBeforeId(@Path("id") id: Int): Single<PhotoItemCollection>
+    fun loadPhotoListAfterId(@Path("id") id: Int): Single<PhotoItemCollection>
 
 }

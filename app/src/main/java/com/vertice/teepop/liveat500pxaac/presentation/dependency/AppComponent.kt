@@ -1,6 +1,7 @@
 package com.vertice.teepop.liveat500pxaac.presentation.dependency
 
 import com.vertice.teepop.liveat500pxaac.data.dependency.RemoteDataModule
+import com.vertice.teepop.liveat500pxaac.data.dependency.RepositoryModule
 import com.vertice.teepop.liveat500pxaac.presentation.viewmodel.PhotoItemViewModel
 import dagger.Component
 import javax.inject.Singleton
@@ -11,7 +12,8 @@ import javax.inject.Singleton
 @Singleton
 @Component(
         modules = arrayOf(
-                RemoteDataModule::class
+                RemoteDataModule::class,
+                RepositoryModule::class
         )
 )
 interface AppComponent {

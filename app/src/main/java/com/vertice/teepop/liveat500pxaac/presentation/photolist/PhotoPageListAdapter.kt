@@ -15,7 +15,7 @@ import com.vertice.teepop.liveat500pxaac.databinding.ListItemPhotoBinding
 /**
  * Created by VerDev06 on 1/19/2018.
  */
-class PhotoListAdapter(val context: Activity) : PagedListAdapter<PhotoItem, PhotoListAdapter.PhotoItemViewHolder>(DIFF_CALLBACK) {
+class PhotoPageListAdapter(val context: Activity) : PagedListAdapter<PhotoItem, PhotoPageListAdapter.PhotoItemViewHolder>(DIFF_CALLBACK) {
 
     private val dm = DisplayMetrics().also {
         context.windowManager.defaultDisplay.getMetrics(it)
