@@ -12,9 +12,7 @@ interface PhotoItemRepository {
 
     fun getPhotoItemDataSource(): PhotoItemDataSource
 
-    fun getPhotoItemLiveData(): MutableLiveData<List<PhotoItem>>
+    fun getPhotoItemLiveData():MutableLiveData<List<PhotoItem>>
 
-    fun getPhotoItemLiveData(photoItemList: MutableLiveData<List<PhotoItem>>)
-
-    fun updatePhotoItemLiveData(id: Int, photoItemList: MutableLiveData<List<PhotoItem>>)
+    fun loadPhotoItemBeforeId(id: Int):MutableLiveData<List<PhotoItem>>
 }

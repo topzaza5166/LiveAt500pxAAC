@@ -12,32 +12,26 @@ import io.reactivex.Scheduler
  */
 class PhotoItemRepositoryImpl(private val apiService: ApiService, private val scheduler: Scheduler) : PhotoItemRepository {
 
-    override fun updatePhotoItemLiveData(id: Int, photoItemList: MutableLiveData<List<PhotoItem>>) {
+    override fun loadPhotoItemBeforeId(id: Int): MutableLiveData<List<PhotoItem>> {
+        val photoList: MutableLiveData<List<PhotoItem>> = MutableLiveData()
         apiService.loadPhotoListBeforeId(id)
                 .subscribeOn(scheduler)
                 .subscribe({ photoItemCollation ->
                     if (photoItemCollation.success) {
-                        val list = photoItemList.value?.toMutableList() ?: ArrayList()
-                        list.addAll(list.size, photoItemCollation.data)
-
-                        photoItemList.postValue(list)
+                        photoList.postValue(photoItemCollation.data)
                     }
                 })
-    }
-
-    override fun getPhotoItemLiveData(photoItemList: MutableLiveData<List<PhotoItem>>) {
-        apiService.loadPhotoList()
-                .subscribeOn(scheduler)
-                .subscribe({ photoItemCollation ->
-                    if (photoItemCollation.success)
-                        photoItemList.postValue(photoItemCollation.data)
-                })
+        return photoList
     }
 
     override fun getPhotoItemLiveData(): MutableLiveData<List<PhotoItem>> {
         val photoList: MutableLiveData<List<PhotoItem>> = MutableLiveData()
-        getPhotoItemLiveData(photoList)
-
+        apiService.loadPhotoList()
+                .subscribeOn(scheduler)
+                .subscribe({ photoItemCollation ->
+                    if (photoItemCollation.success)
+                        photoList.postValue(photoItemCollation.data)
+                })
         return photoList
     }
 

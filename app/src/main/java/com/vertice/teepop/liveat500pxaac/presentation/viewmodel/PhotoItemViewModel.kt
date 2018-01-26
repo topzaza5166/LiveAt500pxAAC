@@ -34,14 +34,22 @@ class PhotoItemViewModel : ViewModel() {
 
     fun loadMore() {
         livePhotoItem?.value?.last()?.let {
-            repository.updatePhotoItemLiveData(it.id, livePhotoItem!!)
+            repository.loadPhotoItemBeforeId(it.id).observeForever { photoItem ->
+                val list = livePhotoItem?.value?.toMutableList() ?: ArrayList()
+                photoItem?.let { list.addAll(list.size, photoItem) }
+
+                livePhotoItem?.postValue(list)
+            }
         }
     }
 
     fun reloadLivePhotoItem() {
-        livePhotoItem?.let {
-            repository.getPhotoItemLiveData(livePhotoItem!!)
-        }
+        repository.getPhotoItemLiveData().observeForever({
+            livePhotoItem?.postValue(it)
+        })
+//        livePhotoItem?.let {
+//            repository.getPhotoItemLiveData(livePhotoItem!!)
+//        }
     }
 
 }
